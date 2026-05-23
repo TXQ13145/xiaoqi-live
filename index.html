@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>小琦梦想有声工作室 · 直播平台</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #141420;
+      --surface2: #1a1a2e;
+      --gold: #d4a574;
+      --gold2: #f0c27a;
+      --accent: #ff6b9d;
+      --accent2: #c44dff;
+      --text: #e8e8f0;
+      --text2: #a0a0b8;
+      --danger: #ff3b3b;
+      --success: #3bd98f;
+      --border: #252540;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.5);
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select: none; -webkit-user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden;
+      display: flex; justify-content: center; align-items: flex-start;
+    }
+    .app-container {
+      width: 100%; max-width: 500px; min-height: 100vh; background: var(--bg);
+      box-shadow: var(--shadow); position: relative; display: flex; flex-direction: column;
+    }
+    .page {
+      display: none; flex: 1; padding: 16px; padding-bottom: calc(80px + var(--safe-bottom));
+      animation: fadeIn .25s ease;
+    }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .header {
+      display: flex; align-items: center; justify-content: space-between; padding: 12px 0;
+      position: sticky; top: 0; z-index: 10; background: var(--bg);
+    }
+    .logo {
+      font-size: 18px; font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .btn-sm {
+      padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: none; cursor: pointer; white-space: nowrap; transition: .2s;
+    }
+    .btn-outline { background: transparent; border: 1.5px solid var(--gold); color: var(--gold); }
+    .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #1a1a0a; font-weight: 700; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-surface { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-success { background: var(--success); color: #1a1a0a; font-weight: 700; }
+    .btn-warning { background: #ff9800; color: #1a1a0a; font-weight: 700; }
+
+    .card {
+      background: var(--surface); border-radius: var(--radius); padding: 14px;
+      margin-bottom: 12px; border: 1px solid var(--border);
+    }
+    .live-card {
+      background: var(--surface); border-radius: var(--radius); margin-bottom: 12px;
+      border: 1px solid var(--border); cursor: pointer; overflow: hidden;
+    }
+    .live-card .thumb {
+      width: 100%; height: 160px; background: #1e1e30;
+      display: flex; align-items: center; justify-content: center; font-size: 42px; color: #444;
+    }
+    .live-card .live-badge {
+      position: absolute; top: 8px; left: 8px; background: var(--danger);
+      color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: 700;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .live-card .info { padding: 10px 14px; }
+    .live-card .info .title { font-weight: 600; font-size: 15px; }
+    .live-card .info .host { font-size: 12px; color: var(--text2); }
+    .live-card .info .viewers { font-size: 11px; color: var(--gold); margin-top: 4px; }
+
+    .input-group { margin-bottom: 14px; }
+    .input-group label { display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:var(--text2); }
+    .input-group input, .input-group textarea, .input-group select {
+      width:100%; padding:12px 14px; border-radius:var(--radius-sm); border:1.5px solid var(--border);
+      background:var(--surface2); color:var(--text); font-size:15px; outline:none; font-family:inherit;
+    }
+    .input-group input:focus { border-color:var(--gold); }
+
+    .btn {
+      display:block; width:100%; padding:14px; border-radius:var(--radius-sm); font-size:16px;
+      font-weight:700; cursor:pointer; border:none; text-align:center; transition:.2s; letter-spacing:.5px;
+    }
+    .btn:active { transform:scale(0.97); opacity:.85; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold2)); color:#1a1a0a; }
+    .btn-secondary { background:var(--surface2); color:var(--text); border:1.5px solid var(--border); }
+    .btn-small { padding:8px 16px; font-size:13px; border-radius:20px; display:inline-block; width:auto; font-weight:600; }
+
+    .modal-overlay {
+      position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75);
+      z-index:100; display:flex; align-items:center; justify-content:center; animation:fadeIn .2s;
+    }
+    .modal {
+      background:var(--surface); border-radius:var(--radius); padding:20px; width:90%;
+      max-width:420px; max-height:80vh; overflow-y:auto; border:1px solid var(--border);
+    }
+    .close-btn { float:right; background:none; border:none; color:var(--text); font-size:24px; cursor:pointer; }
+
+    .gift-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:8px; }
+    .gift-item {
+      background:var(--surface2); border-radius:var(--radius-sm); padding:10px 4px;
+      text-align:center; cursor:pointer; border:2px solid transparent; font-size:12px;
+    }
+    .gift-item:active { border-color:var(--gold); background:#2a2018; }
+    .gift-item .emoji { font-size:30px; display:block; margin-bottom:4px; }
+    .gift-item .price { color:var(--gold); font-weight:700; font-size:11px; }
+
+    .comment-area {
+      max-height:180px; overflow-y:auto; background:var(--surface2); border-radius:var(--radius-sm);
+      padding:10px; margin-bottom:8px; border:1px solid var(--border); font-size:13px;
+    }
+    .comment-item { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.03); word-break:break-all; }
+    .comment-item .uname { color:var(--gold); font-weight:600; margin-right:4px; }
+    .comment-item .gift-msg { color:var(--accent); font-weight:600; }
+    .comment-item .system-msg { color:var(--success); font-weight:600; }
+
+    .bottom-nav {
+      position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:500px;
+      background:var(--surface); border-top:1px solid var(--border); display:flex; justify-content:space-around;
+      padding:8px 0 calc(8px + var(--safe-bottom)); z-index:50;
+    }
+    .bottom-nav .nav-item {
+      text-align:center; cursor:pointer; font-size:11px; color:var(--text2); background:none; border:none; padding:4px 8px;
+    }
+    .bottom-nav .nav-item.active { color:var(--gold); font-weight:700; }
+    .nav-icon { font-size:22px; display:block; margin-bottom:2px; }
+
+    .live-player {
+      width:100%; aspect-ratio:9/16; max-height:50vh; background:#000; border-radius:var(--radius);
+      overflow:hidden; position:relative; margin-bottom:10px;
+    }
+    .live-player video { width:100%; height:100%; object-fit:cover; background:#1a1a2e; }
+    .live-player .overlay-info {
+      position:absolute; top:8px; left:8px; background:rgba(0,0,0,0.6); padding:4px 12px;
+      border-radius:20px; font-size:12px; color:#fff;
+    }
+    .pip-window {
+      position:absolute; bottom:50px; right:10px; width:80px; height:110px; border-radius:8px;
+      overflow:hidden; border:2px solid var(--gold); background:#000; display:none; z-index:5;
+    }
+    .pip-window.show { display:block; }
+    .pip-window video { width:100%; height:100%; object-fit:cover; }
+
+    .tag { display:inline-block; padding:3px 8px; border-radius:12px; font-size:10px; font-weight:600; margin:2px; }
+    .tag-warning { background:rgba(255,59,59,0.2); color:#ff6b6b; }
+    .tag-safe { background:rgba(59,217,143,0.2); color:#3bd98f; }
+    .tag-pending { background:rgba(212,165,116,0.2); color:var(--gold); }
+
+    .toast {
+      position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:200;
+      background:#333; color:#fff; padding:10px 20px; border-radius:20px; font-size:14px;
+      font-weight:600; pointer-events:none; box-shadow:0 8px 30px rgba(0,0,0,0.5);
+      max-width:90%; text-align:center; display:none;
+    }
+
+    .highlight-box {
+      background:rgba(255,107,157,0.08); border:1px dashed var(--accent);
+      border-radius:var(--radius-sm); padding:10px; margin:8px 0; font-size:12px; color:var(--accent);
+    }
+
+    .mic-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--surface2);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
+    }
+    .mic-wave {
+      width: 3px;
+      height: 12px;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: height 0.05s ease;
+    }
+
+    .audio-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e, #0a0a0f);
+      font-size: 60px;
+      color: var(--gold);
+    }
+
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      pointer-events: none;
+      z-index: 9999;
+      font-family: monospace;
+    }
+    @media (max-width:380px) {
+      .gift-grid { grid-template-columns: repeat(3,1fr); }
+      .live-card .thumb { height:130px; }
+      .logo { font-size:16px; }
+    }
+    @media (min-width:768px) {
+      .live-player { aspect-ratio:16/10; max-height:45vh; }
+      .gift-grid { grid-template-columns: repeat(5,1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container" id="appContainer">
+  <div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+    <div style="font-size:28px;font-weight:700;background:linear-gradient(135deg,#d4a574,#f0c27a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎙️ 小琦梦想有声</div>
+    <div style="color:#888;margin-top:8px;">直播平台加载中…</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- 登录注册页面 -->
+  <div class="page active" id="page-auth">
+    <div style="text-align:center;padding:30px 0 15px;">
+      <div style="font-size:40px;">🎙️</div>
+      <h2 style="background:linear-gradient(135deg,#d4a574,#f0c27a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:22px;">小琦梦想有声工作室</h2>
+      <p style="color:var(--text2);">梦想发声，温暖同行</p>
+    </div>
+    <div id="auth-form-login">
+      <div class="input-group"><label>手机号 / 用户名</label><input type="text" id="login-username" placeholder="请输入手机号或用户名"></div>
+      <div class="input-group"><label>密码</label><input type="password" id="login-password" placeholder="请输入密码"></div>
+      <button class="btn btn-primary" id="loginBtn">登 录</button>
+      <button class="btn btn-secondary" id="goRegisterBtn" style="margin-top:8px;">还没有账号？立即注册</button>
+    </div>
+    <div id="auth-form-register" style="display:none;">
+      <div class="input-group"><label>手机号</label><input type="tel" id="reg-phone" placeholder="请输入手机号"></div>
+      <div class="input-group"><label>设置用户名</label><input type="text" id="reg-username" placeholder="请设置用户名"></div>
+      <div class="input-group"><label>设置密码</label><input type="password" id="reg-password" placeholder="6位以上密码"></div>
+      <div class="input-group"><label>微信号 (选填)</label><input type="text" id="reg-wechat" placeholder="选填"></div>
+      <div class="input-group"><label>QQ号 (选填)</label><input type="text" id="reg-qq" placeholder="选填"></div>
+      <div class="input-group"><label>真实姓名 (实名认证)</label><input type="text" id="reg-realname" placeholder="选填，用于实名认证"></div>
+      <div class="input-group"><label>身份证号 (实名认证)</label><input type="text" id="reg-idcard" placeholder="选填，用于实名认证"></div>
+      <button class="btn btn-primary" id="registerBtn">注 册</button>
+      <button class="btn btn-secondary" id="goLoginBtn" style="margin-top:8px;">已有账号？返回登录</button>
+    </div>
+  </div>
+
+  <!-- 首页 -->
+  <div class="page" id="page-home">
+    <div class="header">
+      <span class="logo">🎙️ 小琦梦想有声</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-sm btn-outline" id="startLiveBtn">📡 开播</button>
+        <button class="btn-sm btn-surface" id="logoutBtn1">退出</button>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">👋 <span id="home-welcome"></span> | 💰余额: <b style="color:var(--gold);" id="home-balance">0</b> 金币</div>
+    <div id="live-list-container"><p style="color:var(--text2);text-align:center;padding:30px;">加载中…</p></div>
+  </div>
+
+  <!-- 直播间 -->
+  <div class="page" id="page-live">
+    <div class="header">
+      <button class="btn-sm btn-surface" id="leaveLiveBtn">← 返回</button>
+      <span style="font-weight:600;font-size:14px;" id="live-room-title">直播间</span>
+      <span style="font-size:12px;color:var(--gold);">👁️ <span id="live-viewer-count">0</span></span>
+    </div>
+    <div class="live-player" id="live-player-container">
+      <video id="live-main-video" autoplay playsinline muted poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' fill='%231a1a30'%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23555' font-size='20'%3E🎙️ 小琦梦想有声%3C/text%3E%3C/svg%3E" controlslist="nodownload" disablePictureInPicture></video>
+      <div class="overlay-info" id="live-overlay-info">🔴 直播中</div>
+      <div class="pip-window" id="pip-window">
+        <video id="pip-video" autoplay playsinline muted controlslist="nodownload" disablePictureInPicture></video>
+      </div>
+    </div>
+    <div class="highlight-box" id="live-status-msg" style="display:none;"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
+      <button class="btn-small btn-accent" id="likeBtn">❤️ 点赞 <span id="live-like-count">0</span></button>
+      <button class="btn-small btn-gold" id="giftBtn">🎁 送礼物</button>
+      <button class="btn-small btn-outline" id="micBtn">🎤 申请连麦</button>
+      <button class="btn-small btn-danger" id="reportBtn">🚨举报</button>
+      <button class="btn-small btn-danger" id="closeOwnLiveBtn" style="display:none;">🔴 结束直播</button>
+      <button class="btn-small btn-gold" id="toggleModeBtn" style="display:none;">🎥 切换模式</button>
+      <div id="micControl" style="display:none;" class="mic-indicator">
+        <span id="micIcon">🎤</span>
+        <div id="micWaveContainer" style="display:flex;gap:2px;align-items:center;">
+          <div class="mic-wave" style="height:6px"></div>
+          <div class="mic-wave" style="height:10px"></div>
+          <div class="mic-wave" style="height:14px"></div>
+          <div class="mic-wave" style="height:10px"></div>
+          <div class="mic-wave" style="height:6px"></div>
+        </div>
+        <button id="toggleMicBtn" class="btn-small btn-surface" style="margin-left:6px;padding:2px 8px;">🔇 关麦</button>
+      </div>
+    </div>
+    <div class="comment-area" id="live-comments"><p style="color:var(--text2);">欢迎来到直播间</p></div>
+    <div style="display:flex;gap:6px;">
+      <input type="text" id="live-comment-input" placeholder="说点什么..." style="flex:1;padding:10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;outline:none;" maxlength="200">
+      <button class="btn-small btn-gold" id="sendCommentBtn">发送</button>
+    </div>
+  </div>
+
+  <!-- 管理员后台 -->
+  <div class="page" id="page-admin">
+    <div class="header">
+      <span class="logo">🔐 管理员后台</span>
+      <button class="btn-sm btn-surface" id="logoutBtn2">退出后台</button>
+    </div>
+    <div style="font-size:12px;color:var(--danger);margin-bottom:8px;">⚠️ 此页面仅你可见</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn-small btn-accent" id="adminStreamsBtn">📡 直播间管理</button>
+      <button class="btn-small btn-gold" id="adminUsersBtn">👥 用户管理</button>
+      <button class="btn-small btn-outline" id="adminFinanceBtn">💰 财务流水</button>
+      <button class="btn-small btn-danger" id="adminWithdrawBtn">💳 提现结算</button>
+      <button class="btn-small btn-success" id="adminRealnameBtn">🆔 实名认证审核</button>
+      <button class="btn-small btn-accent" id="adminReplayBtn">📹 直播回放</button>
+    </div>
+    <div id="admin-content"><p style="color:var(--text2);">请选择管理功能</p></div>
+    <div style="margin-top:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);font-size:12px;">
+      <b>📊 平台总览：</b><br>
+      总流水: <b style="color:var(--gold);" id="admin-total-flow">0</b> 金币 |
+      管理员分成(40%): <b style="color:var(--accent);" id="admin-total-commission">0</b> 金币 |
+      可提现: <b style="color:var(--success);" id="admin-withdrawable">0</b> 金币
+    </div>
+  </div>
+
+  <div class="bottom-nav" id="bottom-nav" style="display:none;">
+    <button class="nav-item active" data-page="home"><span class="nav-icon">🏠</span>首页</button>
+    <button class="nav-item" data-page="home"><span class="nav-icon">🔍</span>发现</button>
+    <button class="nav-item" id="nav-admin-btn" data-page="admin" style="display:none;"><span class="nav-icon">🔐</span>管理</button>
+    <button class="nav-item" id="rechargeNavBtn"><span class="nav-icon">💎</span>充值</button>
+    <button class="nav-item" data-page="home"><span class="nav-icon">👤</span>我的</button>
+  </div>
+
+  <div id="modal-container"></div>
+</div>
+
+<script>
+  (function() {
+    // ==================== 全局配置 ====================
+    const DEFAULT_ADMIN_USERNAME = 'admin';
+    const ADMIN_PASSWORD_HASH = '9c3b7a2d8e5f1c4a6b9d0e2f3a5c7d8e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d';
+    const PLATFORM_COMMISSION_RATE = 0.4;
+
+    const BLOCKED_KEYWORDS = [
+      '微信','weixin','wx','vx','qq','QQ','扣扣','微信号','qq号','手机号','电话','加我','私聊',
+      '\/','微','Q','抖','号','v信','威信','黄色','约炮','裸聊','色情','赌博','赌','毒',
+      '私密','私下','加好友','扫码','二维码','链接','http','www','.com','.cn','.net',
+      '一夜情','上床','开房','约吗','yp','看片','资源','福利','免费','加群',
+      'V我','Q我','私我','密我','滴滴','引流','换平台','其他平台','抖音','快手',
+      'tiktok','youtube','bilibili','b站'
+    ];
+
+    const STORAGE_KEY = 'xiaoqi_live_db';
+    let MEMORY_FALLBACK = null;
+
+    // ==================== SHA-256 ====================
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ==================== 存储操作 ====================
+    function isLocalStorageAvailable() {
+      try { localStorage.setItem('test','test'); localStorage.removeItem('test'); return true; } catch(e) { return false; }
+    }
+
+    function getDefaultDB() {
+      return {
+        users: [],
+        streams: [],
+        gifts: [
+          {id:'g1',name:'玫瑰花',emoji:'🌹',price:1},
+          {id:'g2',name:'棒棒糖',emoji:'🍭',price:5},
+          {id:'g3',name:'爱心',emoji:'❤️',price:10},
+          {id:'g4',name:'火箭',emoji:'🚀',price:50},
+          {id:'g5',name:'嘉年华',emoji:'🎪',price:100},
+          {id:'g6',name:'皇冠',emoji:'👑',price:200},
+          {id:'g7',name:'钻石',emoji:'💎',price:500},
+          {id:'g8',name:'至尊礼盒',emoji:'🎁',price:1000}
+        ],
+        transactions: [],
+        comments: [],
+        likes: {},
+        micRequests: [],
+        adminWithdrawals: [],
+        adminEarnings: 0,
+        adminWithdrawn: 0,
+        anchorWithdrawals: [],
+        realnameRequests: [],
+        liveReplays: []
+      };
+    }
+
+    function getDB() {
+      if (isLocalStorageAvailable()) {
+        let data = localStorage.getItem(STORAGE_KEY);
+        if (!data) {
+          data = getDefaultDB();
+          data.users.push({
+            id:'admin_001', username: DEFAULT_ADMIN_USERNAME, passwordHash: ADMIN_PASSWORD_HASH,
+            phone:'00000000000', wechat:'', qq:'', realname:'', idcard:'', isRealnameVerified: true,
+            balance:0, isAdmin:true, isVerified:true, createdAt: new Date().toISOString()
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } else {
+          try { data = JSON.parse(data); } catch(e) { data = getDefaultDB(); }
+        }
+        return data;
+      } else {
+        if (!MEMORY_FALLBACK) MEMORY_FALLBACK = getDefaultDB();
+        return JSON.parse(JSON.stringify(MEMORY_FALLBACK));
+      }
+    }
+
+    function saveDB(data) {
+      if (isLocalStorageAvailable()) localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      else MEMORY_FALLBACK = JSON.parse(JSON.stringify(data));
+    }
+
+    window.closeModal = function() {
+      const container = document.getElementById('modal-container');
+      if (container) container.innerHTML = '';
+    };
+
+    let db = getDB();
+    let currentUser = null;
+    let currentLiveStream = null;
+    let liveInterval = null;
+    let localStream = null;
+    let pipStream = null;
+    let audioContext = null;
+    let volumeMeterInterval = null;
+    let isMicMuted = false;
+    let currentStreamMode = 'video';
+    let peerConnections = new Map();
+    let localPeerConnection = null;
+    let isHost = false;
+    let broadcastChannel = null;
+    let roomId = null;
+
+    // 防录屏相关
+    let antiRecordInterval = null;
+    let originalMediaRecorder = null;
+    let originalGetDisplayMedia = null;
+    let focusCheckInterval = null;
+
+    const $toast = document.getElementById('toast');
+    const $bottomNav = document.getElementById('bottom-nav');
+    const $navAdminBtn = document.getElementById('nav-admin-btn');
+    const $modalContainer = document.getElementById('modal-container');
+    const $splash = document.getElementById('splash');
+
+    // ==================== 工具函数 ====================
+    function showToast(msg, dur=2000) {
+      if (!$toast) return;
+      $toast.textContent = msg; $toast.style.display = 'block';
+      clearTimeout($toast._t); $toast._t = setTimeout(() => { if($toast) $toast.style.display = 'none'; }, dur);
+    }
+
+    function showModal(html) {
+      if (!$modalContainer) return;
+      $modalContainer.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this) window.closeModal()"><div class="modal">${html}</div></div>`;
+      const closeBtns = $modalContainer.querySelectorAll('.close-btn');
+      closeBtns.forEach(btn => btn.addEventListener('click', window.closeModal));
+    }
+
+    function navigateTo(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('page-'+page);
+      if (target) target.classList.add('active');
+      document.querySelectorAll('#bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
+      if (page === 'home') document.querySelector('#bottom-nav .nav-item[data-page="home"]')?.classList.add('active');
+      if (page === 'admin' && $navAdminBtn) $navAdminBtn.classList.add('active');
+      window.scrollTo(0,0);
+    }
+
+    function generateId() { return 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,8); }
+
+    function detectViolation(text) {
+      if (!text) return {violated:false};
+      const t = text.toLowerCase().replace(/\s+/g,'');
+      if (/\d{6,}/.test(t)) return {violated:true, reason:'疑似联系方式(连续数字)'};
+      for (let kw of BLOCKED_KEYWORDS) if (t.includes(kw.toLowerCase())) return {violated:true, reason:`违规词: ${kw}`};
+      if (/[微vV][信xX]?[:：]?\s*[a-zA-Z0-9]{3,}/.test(t)) return {violated:true, reason:'疑似微信号'};
+      if (/[qQ][qQ]?[:：]?\s*[0-9]{4,}/.test(t)) return {violated:true, reason:'疑似QQ号'};
+      return {violated:false};
+    }
+
+    function escapeHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function maskString(str, front=3, back=4) {
+      if (!str) return '';
+      if (str.length <= front+back) return '*'.repeat(str.length);
+      return str.slice(0, front) + '*'.repeat(str.length - front - back) + str.slice(-back);
+    }
+
+    // ==================== 防录屏强化模块 ====================
+    function enableAntiRecording() {
+      originalMediaRecorder = window.MediaRecorder;
+      if (originalMediaRecorder) {
+        window.MediaRecorder = function(...args) {
+          showToast('❌ 禁止录音录像，已阻止操作');
+          throw new Error('Recording is disabled');
+        };
+        window.MediaRecorder.prototype = originalMediaRecorder.prototype;
+      }
+      if (navigator.mediaDevices) {
+        originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
+        navigator.mediaDevices.getDisplayMedia = function(...args) {
+          showToast('❌ 禁止屏幕共享/录屏');
+          return Promise.reject(new Error('Screen sharing is disabled'));
+        };
+      }
+      const visibilityWarning = () => {
+        if (document.visibilityState === 'hidden') {
+          showToast('⚠️ 检测到切换应用或截图操作，请立即停止录屏/截图！');
+          if (currentUser && currentLiveStream) {
+            db = getDB();
+            const stream = db.streams.find(s => s.id === currentLiveStream.id);
+            if (stream) { stream.violationCount = (stream.violationCount||0)+1; saveDB(db); }
+          }
+        }
+      };
+      document.addEventListener('visibilitychange', visibilityWarning);
+      window.addEventListener('blur', () => showToast('⚠️ 窗口失去焦点，请勿进行录屏或截图！'));
+      if (focusCheckInterval) clearInterval(focusCheckInterval);
+      focusCheckInterval = setInterval(() => { if (!document.hasFocus()) showToast('⚠️ 页面未聚焦，疑似正在录屏或截图！'); }, 2000);
+      document.addEventListener('contextmenu', (e) => { e.preventDefault(); return false; });
+      if (antiRecordInterval) clearInterval(antiRecordInterval);
+      antiRecordInterval = setInterval(() => {
+        if (window.MediaRecorder !== originalMediaRecorder && window.MediaRecorder !== undefined) {
+          window.MediaRecorder = originalMediaRecorder;
+          window.MediaRecorder = function(...args) { showToast('❌ 禁止录音录像'); throw new Error('Recording is disabled'); };
+        }
+      }, 1000);
+    }
+
+    function disableAntiRecording() {
+      if (antiRecordInterval) clearInterval(antiRecordInterval);
+      if (focusCheckInterval) clearInterval(focusCheckInterval);
+      if (originalMediaRecorder) window.MediaRecorder = originalMediaRecorder;
+      if (originalGetDisplayMedia && navigator.mediaDevices) navigator.mediaDevices.getDisplayMedia = originalGetDisplayMedia;
+    }
+
+    function addWatermark() {
+      if (document.querySelector('.watermark')) return;
+      const wm = document.createElement('div');
+      wm.className = 'watermark';
+      const userInfo = currentUser ? `${currentUser.username} (${new Date().toLocaleString()})` : '用户';
+      wm.textContent = `🔒 禁止录音录像 | ${userInfo}`;
+      document.body.appendChild(wm);
+    }
+
+    function showRecordingWarning() {
+      return new Promise((resolve) => {
+        showModal(`
+          <div style="text-align:center;">
+            <h3>📢 版权声明</h3>
+            <p style="margin:15px 0;">本直播间内容受法律保护，<strong style="color:var(--danger)">严禁任何形式的录音、录像、截图、录屏</strong>。一经发现，将追究法律责任。</p>
+            <button class="btn btn-primary" id="confirmWarningBtn">我已阅读并承诺遵守</button>
+          </div>
+        `);
+        const btn = document.getElementById('confirmWarningBtn');
+        if (btn) btn.onclick = () => { window.closeModal(); resolve(true); };
+      });
+    }
+
+    function detectScreenRecording() {
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey && e.shiftKey && (e.key === 'R' || e.key === 'r')) ||
+            (e.metaKey && e.shiftKey && e.key === '5') ||
+            (e.key === 'PrintScreen')) {
+          e.preventDefault();
+          showToast('⚠️ 检测到疑似录屏操作，请立即停止！');
+        }
+      });
+    }
+
+    // ==================== 认证 ====================
+    function switchAuthForm(type) {
+      document.getElementById('auth-form-login').style.display = type==='login'?'block':'none';
+      document.getElementById('auth-form-register').style.display = type==='register'?'block':'none';
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('login-username')?.value.trim() || '';
+      const password = document.getElementById('login-password')?.value.trim() || '';
+      if (!username || !password) { showToast('请输入用户名和密码'); return; }
+      db = getDB();
+      const user = db.users.find(u => (u.username===username||u.phone===username));
+      if (!user) { showToast('账号或密码错误'); return; }
+      let valid = false;
+      if (user.passwordHash) {
+        const inputHash = await sha256(password);
+        valid = (inputHash === user.passwordHash);
+      } else if (user.password) {
+        valid = (user.password === password);
+        if (valid) { user.passwordHash = await sha256(password); delete user.password; saveDB(db); }
+      }
+      if (!valid) { showToast('账号或密码错误'); return; }
+      currentUser = user;
+      sessionStorage.setItem('xq_session_user', user.id);
+      if (user.isAdmin) {
+        if ($navAdminBtn) $navAdminBtn.style.display = 'block';
+        navigateTo('admin');
+        refreshAdminOverview();
+      } else {
+        if ($navAdminBtn) $navAdminBtn.style.display = 'none';
+        navigateTo('home');
+        refreshHomePage();
+      }
+      if ($bottomNav) $bottomNav.style.display = 'flex';
+      document.getElementById('page-auth').classList.remove('active');
+      updateUserUI();
+    }
+
+    async function handleRegister() {
+      const phone = document.getElementById('reg-phone')?.value.trim() || '';
+      const username = document.getElementById('reg-username')?.value.trim() || '';
+      const password = document.getElementById('reg-password')?.value.trim() || '';
+      const wechat = document.getElementById('reg-wechat')?.value.trim() || '';
+      const qq = document.getElementById('reg-qq')?.value.trim() || '';
+      const realname = document.getElementById('reg-realname')?.value.trim() || '';
+      const idcard = document.getElementById('reg-idcard')?.value.trim() || '';
+      if (!phone || !username || !password) { showToast('请填写必填项'); return; }
+      if (password.length < 6) { showToast('密码至少6位'); return; }
+      if (!/^\d{7,15}$/.test(phone)) { showToast('手机号格式不正确'); return; }
+      db = getDB();
+      if (db.users.find(u => u.username === username)) { showToast('用户名已被使用'); return; }
+      if (db.users.find(u => u.phone === phone)) { showToast('该手机号已注册'); return; }
+      const passwordHash = await sha256(password);
+      const newUser = {
+        id: generateId(), username, passwordHash, phone, wechat, qq,
+        realname, idcard, isRealnameVerified: false,
+        balance: 50, isAdmin: false, isVerified: !!(wechat || qq),
+        createdAt: new Date().toISOString()
+      };
+      db.users.push(newUser);
+      if (realname && idcard) {
+        if (!db.realnameRequests) db.realnameRequests = [];
+        db.realnameRequests.push({
+          id: generateId(), userId: newUser.id, username, realname, idcard, status: 'pending', createdAt: new Date().toISOString()
+        });
+        showToast('注册成功！实名认证信息已提交审核');
+      } else {
+        showToast('注册成功！赠送50金币 🎉 建议完善实名信息');
+      }
+      saveDB(db);
+      switchAuthForm('login');
+      document.getElementById('login-username').value = username;
+    }
+
+    function logout() {
+      if (currentLiveStream && currentLiveStream.hostId === currentUser?.id) endOwnLiveStream();
+      if (broadcastChannel) broadcastChannel.close();
+      peerConnections.forEach(pc => pc.close()); peerConnections.clear();
+      if (localPeerConnection) localPeerConnection.close();
+      if (localStream) localStream?.getTracks().forEach(t => t.stop());
+      if (pipStream) pipStream?.getTracks().forEach(t => t.stop());
+      if (audioContext) audioContext.close();
+      if (volumeMeterInterval) clearInterval(volumeMeterInterval);
+      disableAntiRecording();
+      currentUser = null; currentLiveStream = null;
+      stopLocalStream(); stopPipStream();
+      if (liveInterval) clearInterval(liveInterval);
+      liveInterval = null;
+      sessionStorage.removeItem('xq_session_user');
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-auth').classList.add('active');
+      if ($bottomNav) $bottomNav.style.display = 'none';
+      if ($navAdminBtn) $navAdminBtn.style.display = 'none';
+      window.closeModal();
+      showToast('已安全退出');
+      const wm = document.querySelector('.watermark'); if(wm) wm.remove();
+    }
+
+    function updateUserUI() {
+      if (!currentUser) return;
+      const welcome = document.getElementById('home-welcome');
+      const balanceSpan = document.getElementById('home-balance');
+      if (welcome) welcome.textContent = currentUser.username;
+      if (balanceSpan) balanceSpan.textContent = currentUser.balance;
+    }
+
+    function refreshHomePage() {
+      if (!currentUser || currentUser.isAdmin) return;
+      updateUserUI();
+      db = getDB();
+      const streams = db.streams.filter(s => s.status === 'live');
+      const container = document.getElementById('live-list-container');
+      if (!container) return;
+      if (streams.length === 0) {
+        container.innerHTML = '<p style="color:var(--text2);text-align:center;padding:40px;">📡 暂无直播，快来开播吧！</p>';
+      } else {
+        container.innerHTML = streams.map(s => {
+          const host = db.users.find(u => u.id === s.hostId);
+          const hostName = host ? host.username : '未知';
+          const likes = (db.likes && db.likes[s.id]) ? db.likes[s.id].length : 0;
+          const modeIcon = s.mode === 'audio' ? '🎧' : '📹';
+          return `<div class="live-card" style="position:relative;" data-streamid="${s.id}">
+            <div class="thumb">${modeIcon}</div>
+            <div class="live-badge">🔴 LIVE</div>
+            <div class="info">
+              <div class="title">${escapeHTML(s.title)} <span style="font-size:10px;">${s.mode === 'audio' ? '语音' : '视频'}</span></div>
+              <div class="host">🎤 ${escapeHTML(hostName)}</div>
+              <div class="viewers">👁️ ${s.viewers||0} 观看 | ❤️ ${likes} 赞</div>
+            </div>
+          </div>`;
+        }).join('');
+        document.querySelectorAll('.live-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const sid = card.dataset.streamid;
+            if (sid) enterLiveRoom(sid);
+          });
+        });
+      }
+    }
+
+    // ==================== WebRTC 相关 ====================
+    async function startHostBroadcast(mode) {
+      currentStreamMode = mode;
+      try {
+        let constraints = { audio: true };
+        if (mode === 'video') constraints.video = true;
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const videoElem = document.getElementById('live-main-video');
+        if (mode === 'video') {
+          if (videoElem) { videoElem.srcObject = localStream; videoElem.muted = false; videoElem.style.display = 'block'; }
+          const ph = document.querySelector('.audio-placeholder'); if(ph) ph.remove();
+        } else {
+          if (videoElem) { videoElem.style.display = 'none'; videoElem.srcObject = null; }
+          if (!document.querySelector('.audio-placeholder')) {
+            const playerDiv = document.getElementById('live-player-container');
+            const placeholderDiv = document.createElement('div');
+            placeholderDiv.className = 'audio-placeholder';
+            placeholderDiv.innerHTML = '🎙️ 语音直播中';
+            playerDiv.appendChild(placeholderDiv);
+          }
+        }
+        isHost = true;
+        setupMicVolumeMeter(localStream);
+        document.getElementById('micControl').style.display = 'flex';
+        document.getElementById('toggleModeBtn').style.display = 'inline-block';
+        roomId = currentLiveStream.id;
+        broadcastChannel = new BroadcastChannel(`live_room_${roomId}`);
+        broadcastChannel.onmessage = (event) => {
+          const { type, data, fromId } = event.data;
+          if (type === 'viewer_offer') handleViewerOffer(data, fromId);
+          else if (type === 'ice_candidate') {
+            const pc = peerConnections.get(data.viewerId);
+            if (pc) pc.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e=>console.warn);
+          } else if (type === 'mic_offer') handleMicOffer(data, fromId);
+          else if (type === 'mic_answer') {
+            if (localPeerConnection) localPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)).catch(e=>console.warn);
+          } else if (type === 'mic_ice') {
+            if (localPeerConnection) localPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e=>console.warn);
+          }
+        };
+        db = getDB();
+        const stream = db.streams.find(s => s.id === currentLiveStream.id);
+        if (stream) { stream.mode = mode; saveDB(db); }
+        showToast(`直播已开启 (${mode === 'video' ? '视频' : '语音'}模式)`);
+      } catch(e) { showToast('无法获取麦克风/摄像头，请检查权限'); }
+    }
+
+    function setupMicVolumeMeter(stream) {
+      if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const waveDivs = document.querySelectorAll('#micWaveContainer .mic-wave');
+      if (volumeMeterInterval) clearInterval(volumeMeterInterval);
+      volumeMeterInterval = setInterval(() => {
+        if (isMicMuted) return;
+        analyser.getByteFrequencyData(dataArray);
+        let avg = 0;
+        for (let i=0;i<dataArray.length;i++) avg+=dataArray[i];
+        avg/=dataArray.length;
+        const level = Math.min(18, Math.floor(avg/8));
+        waveDivs.forEach((div,idx) => {
+          let height = 6 + Math.sin(idx)*level;
+          height = Math.min(20, Math.max(4,height));
+          div.style.height = height+'px';
+        });
+      },100);
+    }
+
+    function toggleMic() {
+      if (!localStream) return;
+      const audioTracks = localStream.getAudioTracks();
+      if (audioTracks.length) {
+        isMicMuted = !isMicMuted;
+        audioTracks[0].enabled = !isMicMuted;
+        const btn = document.getElementById('toggleMicBtn');
+        btn.textContent = isMicMuted ? '🎤 开麦' : '🔇 关麦';
+        showToast(isMicMuted ? '麦克风已关闭' : '麦克风已开启');
+      }
+    }
+
+    async function handleViewerOffer(offer, viewerId) {
+      const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      pc.onicecandidate = (event) => {
+        if (event.candidate) broadcastChannel.postMessage({ type: 'ice_candidate', data: { candidate: event.candidate, viewerId } });
+      };
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      peerConnections.set(viewerId, pc);
+      broadcastChannel.postMessage({ type: 'answer', data: { answer, viewerId }, fromId: currentUser.id });
+    }
+
+    async function joinAsViewer(streamId) {
+      if (!currentUser || currentUser.isAdmin) return;
+      roomId = streamId;
+      broadcastChannel = new BroadcastChannel(`live_room_${roomId}`);
+      broadcastChannel.onmessage = async (event) => {
+        const { type, data } = event.data;
+        if (type === 'answer' && data.viewerId === currentUser.id) {
+          if (localPeerConnection) await localPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        } else if (type === 'ice_candidate' && data.viewerId === currentUser.id) {
+          if (localPeerConnection) localPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e=>console.warn);
+        } else if (type === 'mic_answer') {
+          if (localPeerConnection) localPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)).catch(e=>console.warn);
+        } else if (type === 'mic_ice') {
+          if (localPeerConnection) localPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e=>console.warn);
+        }
+      };
+      localPeerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      localPeerConnection.ontrack = (event) => {
+        const remoteVideo = document.getElementById('live-main-video');
+        if (remoteVideo) {
+          remoteVideo.srcObject = event.streams[0];
+          remoteVideo.muted = false;
+          db = getDB();
+          const stream = db.streams.find(s => s.id === currentLiveStream.id);
+          if (stream && stream.mode === 'audio') {
+            remoteVideo.style.display = 'none';
+            if (!document.querySelector('.audio-placeholder')) {
+              const playerDiv = document.getElementById('live-player-container');
+              const placeholderDiv = document.createElement('div');
+              placeholderDiv.className = 'audio-placeholder';
+              placeholderDiv.innerHTML = '🎙️ 语音直播中';
+              playerDiv.appendChild(placeholderDiv);
+            }
+          } else {
+            remoteVideo.style.display = 'block';
+            const ph = document.querySelector('.audio-placeholder'); if(ph) ph.remove();
+          }
+        }
+      };
+      localPeerConnection.onicecandidate = (event) => {
+        if (event.candidate) broadcastChannel.postMessage({ type: 'ice_candidate', data: { candidate: event.candidate, viewerId: currentUser.id } });
+      };
+      const offer = await localPeerConnection.createOffer();
+      await localPeerConnection.setLocalDescription(offer);
+      broadcastChannel.postMessage({ type: 'viewer_offer', data: offer, fromId: currentUser.id });
+      showToast('正在连接主播...');
+    }
+
+    async function startMicConnect(remoteUserId) {
+      if (!isHost) return;
+      const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      pc.ontrack = (event) => {
+        const remoteStream = event.streams[0];
+        const pipVideo = document.getElementById('pip-video');
+        if (pipVideo) {
+          pipVideo.srcObject = remoteStream;
+          pipVideo.muted = false;
+          document.getElementById('pip-window').classList.add('show');
+        }
+      };
+      pc.onicecandidate = (event) => {
+        if (event.candidate) broadcastChannel.postMessage({ type: 'mic_ice', data: { candidate: event.candidate, viewerId: remoteUserId } });
+      };
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      peerConnections.set(remoteUserId, pc);
+      broadcastChannel.postMessage({ type: 'mic_offer', data: { offer, viewerId: remoteUserId }, fromId: currentUser.id });
+    }
+
+    async function handleMicOffer(data, fromId) {
+      if (localPeerConnection) return;
+      localPeerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      if (localStream) localStream.getTracks().forEach(track => localPeerConnection.addTrack(track, localStream));
+      localPeerConnection.ontrack = (event) => {
+        const remoteStream = event.streams[0];
+        const pipVideo = document.getElementById('pip-video');
+        if (pipVideo) {
+          pipVideo.srcObject = remoteStream;
+          pipVideo.muted = false;
+          document.getElementById('pip-window').classList.add('show');
+        }
+      };
+      localPeerConnection.onicecandidate = (event) => {
+        if (event.candidate) broadcastChannel.postMessage({ type: 'mic_ice', data: { candidate: event.candidate, viewerId: currentUser.id } });
+      };
+      await localPeerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await localPeerConnection.createAnswer();
+      await localPeerConnection.setLocalDescription(answer);
+      broadcastChannel.postMessage({ type: 'mic_answer', data: { answer, viewerId: currentUser.id }, fromId: currentUser.id });
+      showToast('连麦成功，可以说话了');
+      setupMicVolumeMeter(localStream);
+      document.getElementById('micControl').style.display = 'flex';
+    }
+
+    function endOwnLiveStream() {
+      if (!currentLiveStream || currentLiveStream.hostId !== currentUser?.id) return;
+      db = getDB();
+      const stream = db.streams.find(s => s.id === currentLiveStream.id);
+      if (stream && stream.status === 'live') {
+        const comments = (db.comments||[]).filter(c => c.streamId === currentLiveStream.id);
+        const likesCount = (db.likes && db.likes[currentLiveStream.id]) ? db.likes[currentLiveStream.id].length : 0;
+        if (!db.liveReplays) db.liveReplays = [];
+        db.liveReplays.push({
+          id: generateId(), streamId: currentLiveStream.id, title: stream.title,
+          hostId: stream.hostId, hostName: currentUser.username,
+          startTime: stream.createdAt, endTime: new Date().toISOString(),
+          comments: comments.slice(-200), likesCount: likesCount,
+          viewCount: stream.viewers || 0, mode: stream.mode
+        });
+        stream.status = 'closed'; stream.isMuted = true;
+        saveDB(db);
+        showToast('直播已结束，回放已保存');
+      }
+      if (broadcastChannel) broadcastChannel.close();
+      peerConnections.forEach(pc => pc.close()); peerConnections.clear();
+      if (localPeerConnection) localPeerConnection.close();
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
+      if (volumeMeterInterval) clearInterval(volumeMeterInterval);
+      isHost = false;
+      leaveLiveRoom();
+    }
+
+    async function startLocalCamera() {
+      if (currentLiveStream && currentLiveStream.hostId === currentUser?.id) {
+        let mode = 'video';
+        db = getDB();
+        const stream = db.streams.find(s => s.id === currentLiveStream.id);
+        if (stream && stream.mode) mode = stream.mode;
+        else if (stream) { stream.mode = 'video'; saveDB(db); }
+        await startHostBroadcast(mode);
+      } else if (currentLiveStream && !currentUser?.isAdmin) {
+        await joinAsViewer(currentLiveStream.id);
+      }
+    }
+
+    function stopLocalStream() {
+      if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+      const video = document.getElementById('live-main-video');
+      if (video) video.srcObject = null;
+    }
+
+    async function startPipCamera() {
+      try {
+        pipStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const pipVideo = document.getElementById('pip-video');
+        const pipWindow = document.getElementById('pip-window');
+        if (pipVideo && pipWindow) {
+          pipVideo.srcObject = pipStream; pipVideo.muted = false;
+          pipWindow.classList.add('show');
+        }
+        if (isHost && currentLiveStream?.hostId === currentUser?.id) {
+          const req = db.micRequests.find(r => r.streamId === currentLiveStream.id && r.status === 'approved');
+          if (req) startMicConnect(req.userId);
+        }
+        setupMicVolumeMeter(pipStream);
+        document.getElementById('micControl').style.display = 'flex';
+      } catch(e) { showToast('无法打开连麦摄像头'); }
+    }
+
+    function stopPipStream() {
+      if (pipStream) { pipStream.getTracks().forEach(t => t.stop()); pipStream = null; }
+      const pipVideo = document.getElementById('pip-video');
+      const pipWindow = document.getElementById('pip-window');
+      if (pipVideo) pipVideo.srcObject = null;
+      if (pipWindow) pipWindow.classList.remove('show');
+      if (localPeerConnection) { localPeerConnection.close(); localPeerConnection = null; }
+    }
+
+    async function enterLiveRoom(streamId) {
+      if (!currentUser || currentUser.isAdmin) { showToast('请使用用户账号进入'); return; }
+      await showRecordingWarning();
+      db = getDB();
+      const stream = db.streams.find(s => s.id === streamId && s.status === 'live');
+      if (!stream) { showToast('直播间已结束'); refreshHomePage(); return; }
+      if (stream.isMuted) { showToast('该直播间已被管理员关闭'); return; }
+      currentLiveStream = stream;
+      stream.viewers = (stream.viewers||0) + 1;
+      saveDB(db);
+      stopLocalStream(); stopPipStream();
+      navigateTo('live');
+      updateLiveRoomUI();
+      loadLiveComments();
+      updateLiveViewerCount();
+      if (liveInterval) clearInterval(liveInterval);
+      liveInterval = setInterval(() => {
+        db = getDB();
+        const updated = db.streams.find(s => s.id === streamId);
+        if (!updated || updated.status !== 'live' || updated.isMuted) {
+          showToast('直播间已结束或被关闭');
+          leaveLiveRoom();
+          return;
+        }
+        currentLiveStream = updated;
+        updateLiveViewerCount();
+        loadLiveComments();
+      }, 3000);
+      startLocalCamera();
+      addWatermark();
+      detectScreenRecording();
+      enableAntiRecording();
+    }
+
+    function leaveLiveRoom() {
+      if (currentLiveStream && currentUser && !currentUser.isAdmin) {
+        db = getDB();
+        const stream = db.streams.find(s => s.id === currentLiveStream.id);
+        if (stream && stream.viewers > 0) stream.viewers = Math.max(0, stream.viewers - 1);
+        saveDB(db);
+      }
+      currentLiveStream = null;
+      stopLocalStream(); stopPipStream();
+      if (liveInterval) clearInterval(liveInterval);
+      liveInterval = null;
+      document.getElementById('closeOwnLiveBtn').style.display = 'none';
+      document.getElementById('toggleModeBtn').style.display = 'none';
+      const ph = document.querySelector('.audio-placeholder'); if(ph) ph.remove();
+      const videoElem = document.getElementById('live-main-video'); if(videoElem) videoElem.style.display = 'block';
+      navigateTo('home');
+      refreshHomePage();
+      const wm = document.querySelector('.watermark'); if(wm) wm.remove();
+      disableAntiRecording();
+    }
+
+    function updateLiveRoomUI() {
+      if (!currentLiveStream) return;
+      document.getElementById('live-room-title').textContent = currentLiveStream.title;
+      document.getElementById('live-overlay-info').textContent = currentLiveStream.isMuted ? '⚠️ 已停播' : '🔴 直播中';
+      const likes = (db.likes && db.likes[currentLiveStream.id]) ? db.likes[currentLiveStream.id].length : 0;
+      document.getElementById('live-like-count').textContent = likes;
+      const statusMsg = document.getElementById('live-status-msg');
+      if (statusMsg) {
+        statusMsg.style.display = currentLiveStream.isMuted ? 'block' : 'none';
+        if (currentLiveStream.isMuted) statusMsg.textContent = '⚠️ 该直播间已被管理员关闭';
+      }
+      const closeOwnBtn = document.getElementById('closeOwnLiveBtn');
+      if (closeOwnBtn) {
+        closeOwnBtn.style.display = (currentUser && currentLiveStream.hostId === currentUser.id && !currentUser.isAdmin) ? 'inline-block' : 'none';
+      }
+    }
+
+    function updateLiveViewerCount() {
+      if (!currentLiveStream) return;
+      db = getDB();
+      const stream = db.streams.find(s => s.id === currentLiveStream.id);
+      document.getElementById('live-viewer-count').textContent = stream ? (stream.viewers||0) : 0;
+    }
+
+    function loadLiveComments() {
+      if (!currentLiveStream) return;
+      db = getDB();
+      const comments = (db.comments||[]).filter(c => c.streamId === currentLiveStream.id).slice(-50);
+      const container = document.getElementById('live-comments');
+      if (!container) return;
+      container.innerHTML = comments.map(c => {
+        if (c.type === 'gift') return `<div class="comment-item"><span class="gift-msg">🎁 ${escapeHTML(c.username)} 送出 ${c.giftName} (${c.giftPrice}金币)</span></div>`;
+        if (c.type === 'system') return `<div class="comment-item"><span class="system-msg">🔔 ${escapeHTML(c.username)}: ${escapeHTML(c.text)}</span></div>`;
+        return `<div class="comment-item"><span class="uname">${escapeHTML(c.username)}:</span>${escapeHTML(c.text)}</div>`;
+      }).join('') + '<div style="height:2px;"></div>';
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendComment() {
+      if (!currentLiveStream || !currentUser) return;
+      if (currentLiveStream.isMuted) { showToast('直播间已关闭'); return; }
+      const input = document.getElementById('live-comment-input');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      const violation = detectViolation(text);
+      if (violation.violated) {
+        showToast('⚠️ 违规评论已拦截: '+violation.reason);
+        db = getDB();
+        const stream = db.streams.find(s => s.id === currentLiveStream.id);
+        if (stream) {
+          stream.violationCount = (stream.violationCount||0) + 1;
+          if (stream.violationCount >= 3) { stream.isMuted = true; stream.status = 'closed'; }
+          saveDB(db);
+          if (stream.isMuted) leaveLiveRoom();
+        }
+        input.value = ''; return;
+      }
+      db = getDB();
+      db.comments.push({
+        id: generateId(), streamId: currentLiveStream.id, userId: currentUser.id,
+        username: currentUser.username, text, type: 'comment', createdAt: new Date().toISOString()
+      });
+      saveDB(db);
+      input.value = '';
+      loadLiveComments();
+    }
+
+    function sendLike() {
+      if (!currentLiveStream || !currentUser || currentLiveStream.isMuted) return;
+      db = getDB();
+      if (!db.likes) db.likes = {};
+      if (!db.likes[currentLiveStream.id]) db.likes[currentLiveStream.id] = [];
+      db.likes[currentLiveStream.id].push({userId:currentUser.id, time:new Date().toISOString()});
+      saveDB(db);
+      document.getElementById('live-like-count').textContent = db.likes[currentLiveStream.id].length;
+      showToast('❤️ 点赞');
+    }
+
+    function showGiftModal() {
+      if (!currentLiveStream || !currentUser || currentLiveStream.isMuted) return;
+      db = getDB();
+      const gifts = db.gifts || [];
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>🎁 送礼物</h3>
+        <p style="font-size:12px;">余额: <b style="color:var(--gold);">${currentUser.balance}</b> 金币</p>
+        <div class="gift-grid">
+          ${gifts.map(g => `<div class="gift-item" data-giftid="${g.id}"><span class="emoji">${g.emoji}</span>${g.name}<span class="price">${g.price}金币</span></div>`).join('')}
+        </div>
+        <button class="btn btn-secondary" onclick="window.closeModal()" style="margin-top:10px;">取消</button>
+      `);
+      document.querySelectorAll('.gift-item').forEach(item => {
+        item.addEventListener('click', () => sendGift(item.dataset.giftid));
+      });
+    }
+
+    function sendGift(giftId) {
+      if (!currentLiveStream || !currentUser) return;
+      db = getDB();
+      const gift = db.gifts.find(g => g.id === giftId);
+      if (!gift) return;
+      if (currentUser.balance < gift.price) { showToast('余额不足，请充值'); window.closeModal(); showRechargeModal(); return; }
+      currentUser.balance -= gift.price;
+      const userInDB = db.users.find(u => u.id === currentUser.id);
+      if (userInDB) userInDB.balance = currentUser.balance;
+      const commission = Math.floor(gift.price * PLATFORM_COMMISSION_RATE);
+      const hostEarning = gift.price - commission;
+      db.adminEarnings = (db.adminEarnings||0) + commission;
+      const stream = db.streams.find(s => s.id === currentLiveStream.id);
+      if (stream) {
+        const host = db.users.find(u => u.id === stream.hostId);
+        if (host) host.balance = (host.balance||0) + hostEarning;
+      }
+      db.transactions.push({
+        id: generateId(), type:'gift', streamId: currentLiveStream.id,
+        fromUserId: currentUser.id, fromUsername: currentUser.username,
+        giftId: gift.id, giftName: gift.name, giftPrice: gift.price,
+        commission, hostEarning, createdAt: new Date().toISOString()
+      });
+      db.comments.push({
+        id: generateId(), streamId: currentLiveStream.id, userId: currentUser.id,
+        username: currentUser.username, type:'gift', giftName: gift.name, giftPrice: gift.price,
+        createdAt: new Date().toISOString()
+      });
+      saveDB(db);
+      window.closeModal();
+      showToast(`送出 ${gift.emoji} ${gift.name}`);
+      loadLiveComments();
+      updateUserUI();
+      refreshAdminOverview();
+    }
+
+    function requestMic() {
+      if (!currentLiveStream || !currentUser || currentLiveStream.isMuted) return;
+      if (currentLiveStream.hostId === currentUser.id) { showToast('主播不能申请连麦'); return; }
+      const pipWindow = document.getElementById('pip-window');
+      if (pipWindow && pipWindow.classList.contains('show')) { showToast('你已经在连麦中'); return; }
+      db = getDB();
+      if (!db.micRequests) db.micRequests = [];
+      const existing = db.micRequests.find(r => r.streamId === currentLiveStream.id && r.userId === currentUser.id && r.status === 'pending');
+      if (existing) { showToast('已发送申请，请等待主播同意'); return; }
+      db.micRequests.push({
+        id: generateId(), streamId: currentLiveStream.id, userId: currentUser.id,
+        username: currentUser.username, status:'pending', createdAt: new Date().toISOString()
+      });
+      saveDB(db);
+      showToast('🎤 连麦申请已发送，等待主播同意');
+    }
+
+    function showHostMicRequests() {
+      if (!currentUser || currentUser.isAdmin) return;
+      if (!currentLiveStream || currentLiveStream.hostId !== currentUser.id) { showToast('只有主播可在直播中查看连麦申请'); return; }
+      db = getDB();
+      const requests = (db.micRequests || []).filter(r => r.streamId === currentLiveStream.id && r.status === 'pending');
+      if (requests.length === 0) { showToast('暂无连麦申请'); return; }
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>🎤 连麦申请列表</h3>
+        ${requests.map(req => `
+          <div class="card" style="margin-bottom:8px;">
+            <b>${escapeHTML(req.username)}</b> 申请连麦
+            <button class="btn-small btn-success" data-reqid="${req.id}" data-action="approve">同意</button>
+            <button class="btn-small btn-danger" data-reqid="${req.id}" data-action="reject">拒绝</button>
+          </div>
+        `).join('')}
+        <button class="btn btn-secondary" onclick="window.closeModal()">关闭</button>
+      `);
+      document.querySelectorAll('[data-reqid]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const reqId = btn.dataset.reqid;
+          const action = btn.dataset.action;
+          db = getDB();
+          const req = db.micRequests.find(r => r.id === reqId);
+          if (!req) return;
+          if (action === 'approve') {
+            req.status = 'approved';
+            saveDB(db);
+            showToast(`已同意 ${req.username} 的连麦`);
+            if (isHost && currentLiveStream && currentLiveStream.hostId === currentUser.id) {
+              startMicConnect(req.userId);
+            }
+          } else {
+            req.status = 'rejected';
+            saveDB(db);
+            showToast(`已拒绝 ${req.username} 的连麦`);
+          }
+          window.closeModal();
+          setTimeout(() => showHostMicRequests(), 500);
+        });
+      });
+    }
+
+    function addHostMicButton() {
+      if (!currentUser || currentUser.isAdmin) return;
+      const container = document.getElementById('live-player-container');
+      if (container && !document.getElementById('host-mic-btn') && currentLiveStream && currentLiveStream.hostId === currentUser.id) {
+        const btn = document.createElement('button');
+        btn.id = 'host-mic-btn';
+        btn.className = 'btn-small btn-gold';
+        btn.textContent = '🎙️ 连麦申请列表';
+        btn.style.position = 'absolute';
+        btn.style.top = '10px';
+        btn.style.right = '10px';
+        btn.style.zIndex = '15';
+        btn.addEventListener('click', showHostMicRequests);
+        const player = document.querySelector('.live-player');
+        if (player) player.style.position = 'relative';
+        player?.appendChild(btn);
+      }
+    }
+
+    const originalUpdateLiveRoomUI = updateLiveRoomUI;
+    updateLiveRoomUI = function() {
+      originalUpdateLiveRoomUI();
+      addHostMicButton();
+    };
+
+    function reportLive() {
+      if (!currentLiveStream || !currentUser) return;
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>🚨 举报直播间</h3>
+        <p>${escapeHTML(currentLiveStream.title)}</p>
+        <textarea id="report-reason" placeholder="举报原因" style="width:100%;padding:10px;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);"></textarea>
+        <button class="btn btn-danger" id="submitReportBtn" style="margin-top:8px;">提交举报</button>
+      `);
+      const submitBtn = document.getElementById('submitReportBtn');
+      if (submitBtn) submitBtn.addEventListener('click', () => {
+        const reason = document.getElementById('report-reason')?.value.trim();
+        if (!reason) { showToast('请填写原因'); return; }
+        db = getDB();
+        const stream = db.streams.find(s => s.id === currentLiveStream.id);
+        if (stream) {
+          stream.violationCount = (stream.violationCount||0) + 1;
+          if (stream.violationCount >= 3) { stream.isMuted = true; stream.status = 'closed'; }
+          saveDB(db);
+          showToast(stream.isMuted ? '举报成功，直播间已关闭' : '举报已提交');
+          if (stream.isMuted) leaveLiveRoom();
+        }
+        window.closeModal();
+      });
+    }
+
+    function showRechargeModal() {
+      if (!currentUser || currentUser.isAdmin) return;
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>💎 金币充值</h3>
+        <p>当前余额: <b style="color:var(--gold);">${currentUser.balance}</b></p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${[{amt:100,price:'¥10'},{amt:300,price:'¥30'},{amt:500,price:'¥50'},{amt:1000,price:'¥100'},{amt:3000,price:'¥300'},{amt:5000,price:'¥500'}].map(p=>`
+            <div class="gift-item" data-amt="${p.amt}"><span style="font-size:20px;">💎</span>${p.amt}金币<span style="color:var(--gold);">${p.price}</span></div>
+          `).join('')}
+        </div>
+        <button class="btn btn-secondary" onclick="window.closeModal()" style="margin-top:10px;">取消</button>
+      `);
+      document.querySelectorAll('[data-amt]').forEach(el => {
+        el.addEventListener('click', () => {
+          const amt = parseInt(el.dataset.amt);
+          if (!currentUser) return;
+          db = getDB();
+          currentUser.balance += amt;
+          const userInDB = db.users.find(u => u.id === currentUser.id);
+          if (userInDB) userInDB.balance = currentUser.balance;
+          db.transactions.push({ id:generateId(), type:'recharge', userId:currentUser.id, username:currentUser.username, amount:amt, createdAt:new Date().toISOString() });
+          saveDB(db);
+          window.closeModal();
+          showToast(`充值成功 +${amt}金币`);
+          updateUserUI();
+        });
+      });
+    }
+
+    function showAnchorWithdrawModal() {
+      if (!currentUser || currentUser.isAdmin) { showToast('仅主播可提现'); return; }
+      db = getDB();
+      const withdrawable = currentUser.balance;
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>💰 主播提现</h3>
+        <p>当前可提现金额: <b style="color:var(--gold);">${withdrawable}</b> 金币 (1金币=0.01元)</p>
+        <div class="input-group"><label>提现金额 (金币)</label><input type="number" id="anchor-withdraw-amount" min="10" max="${withdrawable}" step="10"></div>
+        <div class="input-group"><label>提现方式</label><select id="anchor-withdraw-method"><option>微信</option><option>支付宝</option></select></div>
+        <div class="input-group"><label>收款账号</label><input type="text" id="anchor-withdraw-account" placeholder="微信号/支付宝账号"></div>
+        <button class="btn btn-gold" id="submitAnchorWithdraw">提交申请</button>
+        <button class="btn btn-secondary" onclick="window.closeModal()" style="margin-top:6px;">取消</button>
+      `);
+      const submitBtn = document.getElementById('submitAnchorWithdraw');
+      if (submitBtn) submitBtn.addEventListener('click', () => {
+        const amount = parseInt(document.getElementById('anchor-withdraw-amount')?.value || '0');
+        const method = document.getElementById('anchor-withdraw-method')?.value;
+        const account = document.getElementById('anchor-withdraw-account')?.value.trim();
+        if (!amount || amount <= 0 || amount > withdrawable) { showToast('金额无效'); return; }
+        if (!account) { showToast('请输入收款账号'); return; }
+        db = getDB();
+        currentUser.balance -= amount;
+        const userInDB = db.users.find(u => u.id === currentUser.id);
+        if (userInDB) userInDB.balance = currentUser.balance;
+        if (!db.anchorWithdrawals) db.anchorWithdrawals = [];
+        db.anchorWithdrawals.push({
+          id: generateId(), userId: currentUser.id, username: currentUser.username,
+          amount, method, account, status: '待审核', createdAt: new Date().toISOString()
+        });
+        saveDB(db);
+        window.closeModal();
+        showToast(`提现申请已提交，${amount}金币等待审核`);
+        updateUserUI();
+      });
+    }
+
+    function addWithdrawButton() {
+      if (currentUser && !currentUser.isAdmin) {
+        const homeHeader = document.querySelector('#page-home .header');
+        if (homeHeader && !document.getElementById('withdrawBtn')) {
+          const withdrawBtn = document.createElement('button');
+          withdrawBtn.id = 'withdrawBtn';
+          withdrawBtn.className = 'btn-sm btn-outline';
+          withdrawBtn.textContent = '💰 提现';
+          withdrawBtn.style.marginLeft = '6px';
+          withdrawBtn.addEventListener('click', showAnchorWithdrawModal);
+          const btnGroup = homeHeader.querySelector('div:last-child');
+          if (btnGroup) btnGroup.appendChild(withdrawBtn);
+        }
+      }
+    }
+
+    const originalUpdateUserUI = updateUserUI;
+    updateUserUI = function() {
+      originalUpdateUserUI();
+      addWithdrawButton();
+    };
+
+    // ==================== 管理员后台功能 ====================
+    function adminRealnameReviewTab() {
+      db = getDB();
+      const requests = db.realnameRequests || [];
+      const pending = requests.filter(r => r.status === 'pending');
+      const container = document.getElementById('admin-content');
+      if (!container) return;
+      container.innerHTML = `
+        <h4>🆔 实名认证审核</h4>
+        <div style="margin-bottom:12px;"><b>待审核申请</b></div>
+        ${pending.length ? pending.map(req => {
+          const user = db.users.find(u => u.id === req.userId);
+          return `<div class="card" style="font-size:12px;">
+            <b>${escapeHTML(req.username)}</b><br>
+            真实姓名: ${maskString(req.realname,1,0)} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(req.realname)}">显示</button><br>
+            身份证号: ${maskString(req.idcard,6,4)} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(req.idcard)}">显示</button><br>
+            ${user ? `手机号: ${maskString(user.phone,3,4)} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(user.phone)}">显示</button>` : ''}<br>
+            <button class="btn-small btn-success" data-reqid="${req.id}" data-action="approve">✅ 通过认证</button>
+            <button class="btn-small btn-danger" data-reqid="${req.id}" data-action="reject">❌ 拒绝</button>
+            <button class="btn-small btn-warning" data-reqid="${req.id}" data-action="delete">🗑️ 删除申请</button>
+          </div>`;
+        }).join('') : '<p>暂无待审核</p>'}
+        <div style="margin-top:16px;"><b>已认证用户</b></div>
+        ${db.users.filter(u => u.isRealnameVerified && !u.isAdmin).map(u => `
+          <div class="card" style="font-size:11px;">
+            ${escapeHTML(u.username)} - 真实姓名: ${maskString(u.realname,1,0)} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(u.realname)}">显示</button>
+          </div>
+        `).join('') || '<p>暂无已认证用户</p>'}
+      `;
+      document.querySelectorAll('.show-full').forEach(btn => {
+        btn.addEventListener('click', () => { showToast(`完整信息: ${btn.dataset.value}`, 3000); });
+      });
+      document.querySelectorAll('[data-reqid]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const reqId = btn.dataset.reqid;
+          const action = btn.dataset.action;
+          db = getDB();
+          const req = db.realnameRequests.find(r => r.id === reqId);
+          if (!req) return;
+          const user = db.users.find(u => u.id === req.userId);
+          if (action === 'approve') {
+            req.status = 'approved';
+            if (user) { user.isRealnameVerified = true; user.realname = req.realname; user.idcard = req.idcard; }
+            showToast(`已通过 ${req.username} 的实名认证`);
+          } else if (action === 'reject') {
+            req.status = 'rejected';
+            showToast(`已拒绝 ${req.username} 的实名认证`);
+          } else if (action === 'delete') {
+            const idx = db.realnameRequests.findIndex(r => r.id === reqId);
+            if (idx !== -1) db.realnameRequests.splice(idx,1);
+            showToast(`已删除 ${req.username} 的认证申请`);
+          }
+          saveDB(db);
+          adminRealnameReviewTab();
+        });
+      });
+    }
+
+    function adminUsersTab() {
+      db = getDB();
+      const container = document.getElementById('admin-content');
+      if (!container) return;
+      container.innerHTML = '<h4>👥 用户管理</h4>' + (db.users.filter(u=>!u.isAdmin).length ? db.users.filter(u=>!u.isAdmin).map(u => `
+        <div class="card" style="font-size:12px;">
+          <b>${escapeHTML(u.username)}</b><br>
+          手机: ${maskString(u.phone,3,4)} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(u.phone)}">显示</button><br>
+          微信: ${u.wechat ? maskString(u.wechat,3,2) : '无'} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(u.wechat)}">显示</button><br>
+          QQ: ${u.qq ? maskString(u.qq,2,2) : '无'} <button class="btn-small btn-outline show-full" data-value="${escapeHTML(u.qq)}">显示</button><br>
+          实名认证: ${u.isRealnameVerified ? '✅ 已认证' : '❌ 未认证'}<br>
+          余额: ${u.balance} | 注册: ${new Date(u.createdAt).toLocaleDateString()}<br>
+          <button class="btn-small btn-danger" data-userid="${u.id}" data-action="delete">🗑️ 删除用户</button>
+        </div>`).join('') : '<p>暂无用户</p>');
+      document.querySelectorAll('.show-full').forEach(btn => {
+        btn.addEventListener('click', () => { showToast(`完整信息: ${btn.dataset.value}`, 3000); });
+      });
+      document.querySelectorAll('[data-userid]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const userId = btn.dataset.userid;
+          if (confirm('确认删除该用户吗？该用户的所有数据将被永久删除。')) {
+            db = getDB();
+            const userIdx = db.users.findIndex(u => u.id === userId);
+            if (userIdx !== -1) {
+              db.users.splice(userIdx,1);
+              db.streams = db.streams.filter(s => s.hostId !== userId);
+              db.comments = db.comments.filter(c => c.userId !== userId);
+              db.transactions = db.transactions.filter(t => t.fromUserId !== userId && t.userId !== userId);
+              db.micRequests = db.micRequests.filter(r => r.userId !== userId);
+              db.anchorWithdrawals = db.anchorWithdrawals.filter(w => w.userId !== userId);
+              db.realnameRequests = db.realnameRequests.filter(r => r.userId !== userId);
+              for (let sid in db.likes) {
+                db.likes[sid] = db.likes[sid].filter(l => l.userId !== userId);
+              }
+              saveDB(db);
+              showToast('用户已删除');
+              adminUsersTab();
+            }
+          }
+        });
+      });
+    }
+
+    function adminCommentsTab() {
+      db = getDB();
+      const allComments = (db.comments || []).slice().reverse();
+      const container = document.getElementById('admin-content');
+      if (!container) return;
+      container.innerHTML = `
+        <h4>💬 评论管理</h4>
+        ${allComments.length ? allComments.map(c => `
+          <div class="card" style="font-size:11px;">
+            <b>${escapeHTML(c.username)}</b> 在 ${c.streamId ? '直播间' : '平台'} 评论: "${escapeHTML(c.text)}"<br>
+            <small>${new Date(c.createdAt).toLocaleString()}</small><br>
+            <button class="btn-small btn-danger" data-commentid="${c.id}">🗑️ 删除评论</button>
+          </div>
+        `).join('') : '<p>暂无评论</p>'}
+      `;
+      document.querySelectorAll('[data-commentid]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const commentId = btn.dataset.commentid;
+          if (confirm('确认删除该评论吗？')) {
+            db = getDB();
+            const idx = db.comments.findIndex(c => c.id === commentId);
+            if (idx !== -1) {
+              db.comments.splice(idx,1);
+              saveDB(db);
+              showToast('评论已删除');
+              adminCommentsTab();
+            }
+          }
+        });
+      });
+    }
+
+    function adminWithdrawalsTab() {
+      db = getDB();
+      const withdrawals = db.adminWithdrawals || [];
+      const container = document.getElementById('admin-content');
+      if (!container) return;
+      container.innerHTML = `
+        <h4>💳 管理员提现记录</h4>
+        ${withdrawals.length ? withdrawals.map(w => `
+          <div class="card" style="font-size:11px;">
+            金额: ${w.amount}金币 | 方式: ${w.method} | 账号: ${escapeHTML(w.account)} | 状态: ${w.status}<br>
+            <small>${new Date(w.createdAt).toLocaleString()}</small><br>
+            <button class="btn-small btn-danger" data-withdrawid="${w.id}">🗑️ 删除记录</button>
+          </div>
+        `).join('') : '<p>暂无记录</p>'}
+      `;
+      document.querySelectorAll('[data-withdrawid]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const wid = btn.dataset.withdrawid;
+          if (confirm('确认删除该提现记录吗？')) {
+            db = getDB();
+            const idx = db.adminWithdrawals.findIndex(w => w.id === wid);
+            if (idx !== -1) {
+              db.adminWithdrawals.splice(idx,1);
+              saveDB(db);
+              showToast('记录已删除');
+              adminWithdrawalsTab();
+            }
+          }
+        });
+      });
+    }
+
+    function adminAnchorWithdrawalsTab() {
+      db = getDB();
+      const withdrawals = db.anchorWithdrawals || [];
+      const pending = withdrawals.filter(w => w.status === '待审核');
+      const history = withdrawals.filter(w => w.status !== '待审核');
+      const container = document.getElementById('admin-content');
+      if (!container) return;
+      container.innerHTML = `
+        <h4>🎤 主播提现审核</h4>
+        <div style="margin-bottom:12px;"><b>待审核申请</b></div>
+        ${pending.length ? pending.map(w => `
+          <div class="card" style="font-size:12px;">
+            <b>${escapeHTML(w.username)}</b> 申请提现 ${w.amount} 金币<br>
+            方式: ${w.method} | 账号: ${escapeHTML(w.account)}<br>
+            <button class="btn-small btn-success" data-wid="${w.id}" data-action="approve">✅ 批准</button>
+            <button class="btn-small btn-danger" data-wid="${w.id}" data-action="reject">❌ 拒绝</button>
+            <button class="btn-small btn-warning" data-wid="${w.id}" data-action="delete">🗑️ 删除申请</button>
+          </div>
+        `).join('') : '<p>暂无待审核提现</p>'}
+        <div style="margin-top:16px;"><b>历史记录</b></div>
+        ${history.length ? history.map(w => `
+          <div class="card" style="font-size:11px;">
+            ${escapeHTML(w.username)} - ${w.amount}金币 - ${w.method} - ${w.status}<br>
+            <small>${new Date(w.createdAt).toLocaleString()}</small><br>
+            <button class="btn-small btn-danger" data-wid="${w.id}" data-action="delete">🗑️ 删除记录</button>
+          </div>
+        `).join('') : '<p>暂无历史记录</p>'}
+      `;
+      document.querySelectorAll('[data-wid]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const wid = btn.dataset.wid;
+          const action = btn.dataset.action;
+          db = getDB();
+          const withdrawal = db.anchorWithdrawals.find(w => w.id === wid);
+          if (!withdrawal) return;
+          if (action === 'approve') {
+            withdrawal.status = '已批准';
+            showToast(`已批准 ${withdrawal.username} 的提现申请`);
+          } else if (action === 'reject') {
+            const user = db.users.find(u => u.id === withdrawal.userId);
+            if (user) user.balance += withdrawal.amount;
+            withdrawal.status = '已拒绝';
+            showToast(`已拒绝并退回 ${withdrawal.amount} 金币`);
+          } else if (action === 'delete') {
+            const idx = db.anchorWithdrawals.findIndex(w => w.id === wid);
+            if (idx !== -1) {
+              db.anchorWithdrawals.splice(idx,1);
+              showToast('提现记录已删除');
+            }
+          }
+          saveDB(db);
+          adminAnchorWithdrawalsTab();
+          refreshAdminOverview();
+        });
+      });
+    }
+
+    async function adminStartLive() {
+      if (!currentUser || !currentUser.isAdmin) { showToast('仅管理员可开播'); return; }
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>📡 管理员开播</h3>
+        <div class="input-group"><label>直播标题</label><input type="text" id="admin-stream-title" placeholder="输入标题" maxlength="50"></div>
+        <div class="input-group"><label>直播模式</label>
+          <select id="admin-stream-mode">
+            <option value="video">📹 视频直播</option>
+            <option value="audio">🎧 语音直播</option>
+          </select>
+        </div>
+        <p style="font-size:11px;color:var(--text2);">管理员直播不受认证限制</p>
+        <button class="btn btn-primary" id="confirmAdminStartLive">确认开播</button>
+        <button class="btn btn-secondary" onclick="window.closeModal()" style="margin-top:6px;">取消</button>
+      `);
+      const confirmBtn = document.getElementById('confirmAdminStartLive');
+      if (confirmBtn) confirmBtn.addEventListener('click', async () => {
+        const titleInput = document.getElementById('admin-stream-title');
+        const modeSelect = document.getElementById('admin-stream-mode');
+        if (!titleInput) return;
+        const title = titleInput.value.trim();
+        const mode = modeSelect ? modeSelect.value : 'video';
+        if (!title) { showToast('请输入直播标题'); return; }
+        if (detectViolation(title).violated) { showToast('标题包含违规内容'); return; }
+        db = getDB();
+        const stream = {
+          id: generateId(), hostId: currentUser.id, title, status: 'live',
+          viewers: 0, violationCount: 0, isMuted: false, mode: mode,
+          createdAt: new Date().toISOString()
+        };
+        db.streams.push(stream);
+        if (!db.likes) db.likes = {};
+        db.likes[stream.id] = [];
+        saveDB(db);
+        window.closeModal();
+        currentLiveStream = stream;
+        isHost = true;
+        await startHostBroadcast(mode);
+        navigateTo('live');
+        updateLiveRoomUI();
+        refreshAdminOverview();
+        showToast(`管理员直播已开启 (${mode === 'video' ? '视频' : '语音'}模式)`);
+        document.getElementById('closeOwnLiveBtn').style.display = 'inline-block';
+      });
+    }
+
+    function adminDeleteStream(streamId) {
+      if (confirm('确认删除该直播间吗？该操作不可恢复。')) {
+        db = getDB();
+        const idx = db.streams.findIndex(s => s.id === streamId);
+        if (idx !== -1) {
+          db.streams.splice(idx,1);
+          db.comments = db.comments.filter(c => c.streamId !== streamId);
+          db.transactions = db.transactions.filter(t => t.streamId !== streamId);
+          if (db.likes) delete db.likes[streamId];
+          saveDB(db);
+          showToast('直播间已删除');
+          adminTab('streams');
+        }
+      }
+    }
+
+    async function adminEnterLiveRoom(streamId) {
+      if (!currentUser || !currentUser.isAdmin) return;
+      db = getDB();
+      const stream = db.streams.find(s => s.id === streamId);
+      if (!stream || stream.status !== 'live') { showToast('直播间已结束'); return; }
+      currentLiveStream = stream;
+      isHost = false;
+      navigateTo('live');
+      setTimeout(() => {
+        const container = document.getElementById('live-player-container');
+        if (container && !document.getElementById('admin-live-tools')) {
+          const toolsDiv = document.createElement('div');
+          toolsDiv.id = 'admin-live-tools';
+          toolsDiv.style.cssText = 'position:absolute; top:50px; right:8px; z-index:20; display:flex; gap:6px;';
+          toolsDiv.innerHTML = `
+            <button class="btn-small btn-danger" id="adminCloseStreamBtn">🚫 关停直播</button>
+            <button class="btn-small btn-accent" id="adminRemindBtn">📢 提醒主播</button>
+          `;
+          const player = document.querySelector('.live-player');
+          if (player) player.style.position = 'relative';
+          container.appendChild(toolsDiv);
+          document.getElementById('adminCloseStreamBtn')?.addEventListener('click', () => {
+            if (confirm('确认关停该直播间吗？')) {
+              adminCloseStream(stream.id);
+              leaveLiveRoom();
+            }
+          });
+          document.getElementById('adminRemindBtn')?.addEventListener('click', () => {
+            db = getDB();
+            db.comments.push({
+              id: generateId(), streamId: stream.id, userId: currentUser.id,
+              username: '🔔 系统管理员', text: '【管理员提醒】请遵守平台规则，文明直播。', type: 'system', createdAt: new Date().toISOString()
+            });
+            saveDB(db);
+            loadLiveComments();
+            showToast('已发送提醒');
+          });
+        }
+        updateLiveRoomUI();
+        loadLiveComments();
+        // 加入直播间流
+        joinAsViewerForAdmin(streamId);
+      }, 100);
+    }
+
+    async function joinAsViewerForAdmin(streamId) {
+      if (!currentUser || !currentUser.isAdmin) return;
+      roomId = streamId;
+      if (broadcastChannel) broadcastChannel.close();
+      broadcastChannel = new BroadcastChannel(`live_room_${roomId}`);
+      broadcastChannel.onmessage = async (event) => {
+        const { type, data } = event.data;
+        if (type === 'answer' && data.viewerId === currentUser.id) {
+          if (localPeerConnection) await localPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        } else if (type === 'ice_candidate' && data.viewerId === currentUser.id) {
+          if (localPeerConnection) localPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e=>console.warn);
+        } else if (type === 'mic_answer') {
+          if (localPeerConnection) localPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer)).catch(e=>console.warn);
+        } else if (type === 'mic_ice') {
+          if (localPeerConnection) localPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e=>console.warn);
+        }
+      };
+      if (localPeerConnection) localPeerConnection.close();
+      localPeerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      localPeerConnection.ontrack = (event) => {
+        const remoteVideo = document.getElementById('live-main-video');
+        if (remoteVideo) {
+          remoteVideo.srcObject = event.streams[0];
+          remoteVideo.muted = false;
+          db = getDB();
+          const stream = db.streams.find(s => s.id === currentLiveStream.id);
+          if (stream && stream.mode === 'audio') {
+            remoteVideo.style.display = 'none';
+            if (!document.querySelector('.audio-placeholder')) {
+              const playerDiv = document.getElementById('live-player-container');
+              const placeholderDiv = document.createElement('div');
+              placeholderDiv.className = 'audio-placeholder';
+              placeholderDiv.innerHTML = '🎙️ 语音直播中';
+              playerDiv.appendChild(placeholderDiv);
+            }
+          } else {
+            remoteVideo.style.display = 'block';
+            const ph = document.querySelector('.audio-placeholder'); if(ph) ph.remove();
+          }
+        }
+      };
+      localPeerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          broadcastChannel.postMessage({ type: 'ice_candidate', data: { candidate: event.candidate, viewerId: currentUser.id } });
+        }
+      };
+      const offer = await localPeerConnection.createOffer();
+      await localPeerConnection.setLocalDescription(offer);
+      broadcastChannel.postMessage({ type: 'viewer_offer', data: offer, fromId: currentUser.id });
+      showToast('正在连接主播...');
+    }
+
+    function adminCloseStream(sid) {
+      db = getDB();
+      const stream = db.streams.find(s => s.id === sid);
+      if (stream) { stream.isMuted = true; stream.status = 'closed'; saveDB(db); showToast('直播间已关停'); adminTab('streams'); }
+    }
+
+    function refreshAdminOverview() {
+      db = getDB();
+      const totalFlow = (db.transactions||[]).reduce((s,t) => s + (t.type==='gift'?t.giftPrice: t.type==='recharge'?t.amount:0), 0);
+      document.getElementById('admin-total-flow').textContent = totalFlow;
+      document.getElementById('admin-total-commission').textContent = db.adminEarnings||0;
+      document.getElementById('admin-withdrawable').textContent = (db.adminEarnings||0) - (db.adminWithdrawn||0);
+    }
+
+    function adminTab(tab) {
+      if (tab === 'streams') {
+        db = getDB();
+        const container = document.getElementById('admin-content');
+        if (!container) return;
+        container.innerHTML = '<h4>📡 直播间管理</h4>' + (db.streams.length ? db.streams.map(s => {
+          const host = db.users.find(u => u.id === s.hostId);
+          const commentsCount = (db.comments||[]).filter(c => c.streamId === s.id).length;
+          const giftsAmount = (db.transactions||[]).filter(t => t.streamId === s.id && t.type==='gift').reduce((sum,t)=>sum+t.giftPrice,0);
+          return `<div class="card" style="font-size:12px;">
+            <b>${escapeHTML(s.title)}</b> ${s.isMuted?'<span class="tag tag-warning">已关闭</span>':'<span class="tag tag-safe">直播中</span>'} ${s.mode === 'audio' ? '🎧' : '📹'}<br>
+            主播: ${escapeHTML(host?.username||'未知')} | 观看:${s.viewers||0} | 违规:${s.violationCount||0}<br>
+            评论:${commentsCount} | 礼物流水:${giftsAmount}金币<br>
+            <button class="btn-small btn-danger close-stream-btn" data-sid="${s.id}">🚫 关停</button>
+            <button class="btn-small btn-surface view-stream-btn" data-sid="${s.id}">👁️ 详情</button>
+          </div>`;
+        }).join('') : '<p>暂无直播间</p>');
+        document.querySelectorAll('.close-stream-btn').forEach(b => b.addEventListener('click', (e) => adminCloseStream(e.target.dataset.sid)));
+        document.querySelectorAll('.view-stream-btn').forEach(b => b.addEventListener('click', (e) => { adminViewStream(e.target.dataset.sid); }));
+        setTimeout(() => {
+          document.querySelectorAll('.view-stream-btn').forEach(btn => {
+            const sid = btn.dataset.sid;
+            const card = btn.closest('.card');
+            if (card && !card.querySelector('.admin-enter-btn')) {
+              const enterBtn = document.createElement('button');
+              enterBtn.className = 'btn-small btn-gold admin-enter-btn';
+              enterBtn.textContent = '🎬 进入直播间 (管理员)';
+              enterBtn.style.marginLeft = '6px';
+              enterBtn.addEventListener('click', () => adminEnterLiveRoom(sid));
+              btn.parentNode.appendChild(enterBtn);
+            }
+          });
+        }, 50);
+        if (!document.getElementById('admin-add-stream-btn')) {
+          const addBtn = document.createElement('button');
+          addBtn.id = 'admin-add-stream-btn';
+          addBtn.className = 'btn-small btn-success';
+          addBtn.textContent = '➕ 添加直播间 (管理员开播)';
+          addBtn.style.marginBottom = '10px';
+          addBtn.addEventListener('click', adminStartLive);
+          container.insertBefore(addBtn, container.firstChild);
+        }
+        setTimeout(() => {
+          document.querySelectorAll('.close-stream-btn').forEach(btn => {
+            const card = btn.closest('.card');
+            if (card && !card.querySelector('.admin-delete-stream-btn')) {
+              const delBtn = document.createElement('button');
+              delBtn.className = 'btn-small btn-warning admin-delete-stream-btn';
+              delBtn.textContent = '🗑️ 删除直播间';
+              delBtn.style.marginLeft = '6px';
+              const streamId = btn.dataset.sid;
+              delBtn.addEventListener('click', () => adminDeleteStream(streamId));
+              btn.parentNode.appendChild(delBtn);
+            }
+          });
+        }, 100);
+      } else if (tab === 'users') {
+        adminUsersTab();
+      } else if (tab === 'finance') {
+        db = getDB();
+        const container = document.getElementById('admin-content');
+        if (!container) return;
+        const txns = (db.transactions||[]).slice(-100).reverse();
+        container.innerHTML = '<h4>💰 最近流水</h4>' + (txns.length ? txns.map(t => {
+          if (t.type==='gift') return `<div class="card" style="font-size:11px;">🎁 ${escapeHTML(t.fromUsername)} 送出 ${t.giftName} (${t.giftPrice}金币) | 抽成:${t.commission} | 主播得:${t.hostEarning}<br><small>${new Date(t.createdAt).toLocaleString()}</small></div>`;
+          if (t.type==='recharge') return `<div class="card" style="font-size:11px;">💎 ${escapeHTML(t.username)} 充值 ${t.amount}金币<br><small>${new Date(t.createdAt).toLocaleString()}</small></div>`;
+          return '';
+        }).join('') : '<p>暂无交易</p>');
+      } else if (tab === 'withdraw') {
+        db = getDB();
+        const container = document.getElementById('admin-content');
+        if (!container) return;
+        const withdrawable = (db.adminEarnings||0) - (db.adminWithdrawn||0);
+        container.innerHTML = `
+          <h4>💳 提现结算</h4>
+          <div class="card">
+            <p>可提现: <b style="color:var(--gold);">${withdrawable}</b> 金币</p>
+            <div class="input-group"><label>金额</label><input type="number" id="withdraw-amount" min="1" max="${withdrawable}"></div>
+            <div class="input-group"><label>方式</label><select id="withdraw-method"><option>微信</option><option>支付宝</option></select></div>
+            <div class="input-group"><label>账号</label><input type="text" id="withdraw-account" placeholder="收款账号"></div>
+            <button class="btn btn-gold" id="confirmWithdrawBtn">确认提现</button>
+          </div>
+          <h4>📋 提现记录</h4>
+          ${(db.adminWithdrawals||[]).slice(-20).reverse().map(w => `<div class="card" style="font-size:11px;">💳 ${w.amount}金币 | ${w.method} | ${w.account} | ${w.status}<br><small>${new Date(w.createdAt).toLocaleString()}</small></div>`).join('') || '<p>暂无记录</p>'}
+        `;
+        const confirmBtn = document.getElementById('confirmWithdrawBtn');
+        if (confirmBtn) confirmBtn.addEventListener('click', adminWithdraw);
+      } else if (tab === 'realname') {
+        adminRealnameReviewTab();
+      } else if (tab === 'replay') {
+        adminLiveReplayTab();
+      } else if (tab === 'anchor_withdraw') {
+        adminAnchorWithdrawalsTab();
+      } else if (tab === 'comments') {
+        adminCommentsTab();
+      } else if (tab === 'admin_withdrawals') {
+        adminWithdrawalsTab();
+      }
+      refreshAdminOverview();
+    }
+
+    function adminViewStream(sid) {
+      db = getDB();
+      const stream = db.streams.find(s => s.id === sid);
+      if (!stream) return;
+      const host = db.users.find(u => u.id === stream.hostId);
+      const totalGifts = (db.transactions||[]).filter(t => t.streamId===sid && t.type==='gift').reduce((s,t)=>s+t.giftPrice,0);
+      const comments = (db.comments||[]).filter(c => c.streamId === sid);
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>直播间详情</h3>
+        <p>标题: ${escapeHTML(stream.title)}</p>
+        <p>主播: ${escapeHTML(host?.username||'未知')} | 状态: ${stream.isMuted?'已关闭':'直播中'}</p>
+        <p>模式: ${stream.mode === 'audio' ? '语音' : '视频'}</p>
+        <p>观看:${stream.viewers||0} | 违规:${stream.violationCount||0} | 礼物流水:${totalGifts}金币</p>
+        <p><b>近期评论:</b></p>
+        <div style="max-height:150px;overflow-y:auto;background:var(--surface2);padding:8px;border-radius:8px;">
+          ${comments.slice(-20).map(c => `<div>${escapeHTML(c.username)}: ${escapeHTML(c.text)}</div>`).join('') || '暂无评论'}
+        </div>
+        <button class="btn btn-danger btn-small" id="adminCloseFromViewBtn">🚫 关停</button>
+      `);
+      const closeBtn = document.getElementById('adminCloseFromViewBtn');
+      if (closeBtn) closeBtn.addEventListener('click', () => { adminCloseStream(sid); window.closeModal(); });
+    }
+
+    function adminWithdraw() {
+      const amount = parseInt(document.getElementById('withdraw-amount')?.value || '0');
+      const method = document.getElementById('withdraw-method')?.value || '微信';
+      const account = document.getElementById('withdraw-account')?.value.trim();
+      db = getDB();
+      const withdrawable = (db.adminEarnings||0) - (db.adminWithdrawn||0);
+      if (!amount || amount<=0 || amount>withdrawable) { showToast('金额无效'); return; }
+      if (!account) { showToast('请输入账号'); return; }
+      db.adminWithdrawn = (db.adminWithdrawn||0) + amount;
+      db.adminWithdrawals.push({ id:generateId(), amount, method, account, status:'已提交', createdAt:new Date().toISOString() });
+      saveDB(db);
+      showToast(`提现申请已提交：${amount}金币到${method} ${account}`);
+      adminTab('withdraw');
+      refreshAdminOverview();
+    }
+
+    function adminLiveReplayTab() {
+      db = getDB();
+      const replays = (db.liveReplays || []).slice().reverse();
+      const container = document.getElementById('admin-content');
+      if (!container) return;
+      container.innerHTML = `
+        <h4>📹 直播回放列表</h4>
+        ${replays.length ? replays.map(r => `
+          <div class="card" style="font-size:12px;">
+            <b>${escapeHTML(r.title)}</b><br>
+            主播: ${escapeHTML(r.hostName)} | 模式: ${r.mode === 'audio' ? '语音' : '视频'}<br>
+            开始: ${new Date(r.startTime).toLocaleString()}<br>
+            观看: ${r.viewCount} | 点赞: ${r.likesCount} | 评论数: ${r.comments.length}<br>
+            <button class="btn-small btn-outline view-replay-detail" data-replayid="${r.id}">📋 查看详情</button>
+          </div>
+        `).join('') : '<p>暂无直播回放</p>'}
+      `;
+      document.querySelectorAll('.view-replay-detail').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const replayId = btn.dataset.replayid;
+          const replay = db.liveReplays.find(r => r.id === replayId);
+          if (replay) {
+            showModal(`
+              <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+              <h3>📹 回放详情</h3>
+              <p><b>标题:</b> ${escapeHTML(replay.title)}</p>
+              <p><b>主播:</b> ${escapeHTML(replay.hostName)}</p>
+              <p><b>模式:</b> ${replay.mode === 'audio' ? '语音' : '视频'}</p>
+              <p><b>直播时间:</b> ${new Date(replay.startTime).toLocaleString()} - ${new Date(replay.endTime).toLocaleString()}</p>
+              <p><b>观看人数:</b> ${replay.viewCount}</p>
+              <p><b>点赞数:</b> ${replay.likesCount}</p>
+              <p><b>评论记录:</b></p>
+              <div style="max-height:200px;overflow-y:auto;background:var(--surface2);padding:8px;border-radius:8px;">
+                ${replay.comments.slice(-30).map(c => `<div>${escapeHTML(c.username)}: ${escapeHTML(c.text)}</div>`).join('') || '暂无评论'}
+              </div>
+            `);
+          }
+        });
+      });
+    }
+
+    function autoMonitor() {
+      setInterval(() => {
+        db = getDB();
+        let changed = false;
+        db.streams.forEach(s => {
+          if (s.status === 'live' && !s.isMuted) {
+            const comments = (db.comments||[]).filter(c => c.streamId===s.id && c.type==='comment');
+            const violations = comments.filter(c => detectViolation(c.text).violated).length;
+            if (violations >= 5) { s.isMuted = true; s.status = 'closed'; s.violationCount = violations; changed = true; }
+            else if (violations > (s.violationCount||0)) { s.violationCount = violations; changed = true; }
+          }
+        });
+        if (changed) saveDB(db);
+      }, 10000);
+    }
+
+    function pollMicApproval() {
+      setInterval(() => {
+        if (!currentLiveStream || !currentUser) return;
+        if (currentLiveStream.hostId === currentUser.id) return;
+        db = getDB();
+        const req = db.micRequests.find(r => r.streamId === currentLiveStream.id && r.userId === currentUser.id && r.status === 'approved');
+        if (req && !pipStream) {
+          startPipCamera();
+          req.status = 'connected';
+          saveDB(db);
+          showToast('主播同意了你的连麦请求');
+        }
+        const rejected = db.micRequests.find(r => r.streamId === currentLiveStream.id && r.userId === currentUser.id && r.status === 'rejected');
+        if (rejected) {
+          showToast('连麦请求已被拒绝');
+          rejected.status = 'notified';
+          saveDB(db);
+        }
+      }, 2000);
+    }
+
+    async function toggleStreamMode() {
+      if (!isHost || !localStream) return;
+      const newMode = currentStreamMode === 'video' ? 'audio' : 'video';
+      try {
+        const constraints = { audio: true };
+        if (newMode === 'video') constraints.video = true;
+        const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const oldVideoTracks = localStream.getVideoTracks();
+        oldVideoTracks.forEach(track => track.stop());
+        localStream = newStream;
+        const videoElem = document.getElementById('live-main-video');
+        const playerDiv = document.getElementById('live-player-container');
+        const existingPlaceholder = document.querySelector('.audio-placeholder');
+        if (newMode === 'video') {
+          if (videoElem) { videoElem.style.display = 'block'; videoElem.srcObject = localStream; videoElem.muted = false; }
+          if (existingPlaceholder) existingPlaceholder.remove();
+        } else {
+          if (videoElem) { videoElem.style.display = 'none'; videoElem.srcObject = null; }
+          if (!existingPlaceholder) {
+            const placeholderDiv = document.createElement('div');
+            placeholderDiv.className = 'audio-placeholder';
+            placeholderDiv.innerHTML = '🎙️ 语音直播中';
+            playerDiv.appendChild(placeholderDiv);
+          }
+        }
+        if (volumeMeterInterval) clearInterval(volumeMeterInterval);
+        setupMicVolumeMeter(localStream);
+        currentStreamMode = newMode;
+        db = getDB();
+        const stream = db.streams.find(s => s.id === currentLiveStream.id);
+        if (stream) { stream.mode = newMode; saveDB(db); }
+        showToast(`已切换至${newMode === 'video' ? '视频' : '语音'}模式`);
+      } catch(e) { showToast('切换失败，请检查权限'); }
+    }
+
+    function bindEvents() {
+      document.getElementById('loginBtn')?.addEventListener('click', handleLogin);
+      document.getElementById('goRegisterBtn')?.addEventListener('click', () => switchAuthForm('register'));
+      document.getElementById('registerBtn')?.addEventListener('click', handleRegister);
+      document.getElementById('goLoginBtn')?.addEventListener('click', () => switchAuthForm('login'));
+      document.getElementById('logoutBtn1')?.addEventListener('click', logout);
+      document.getElementById('logoutBtn2')?.addEventListener('click', logout);
+      document.getElementById('startLiveBtn')?.addEventListener('click', showStartLiveModal);
+      document.getElementById('leaveLiveBtn')?.addEventListener('click', leaveLiveRoom);
+      document.getElementById('sendCommentBtn')?.addEventListener('click', sendComment);
+      document.getElementById('likeBtn')?.addEventListener('click', sendLike);
+      document.getElementById('giftBtn')?.addEventListener('click', showGiftModal);
+      document.getElementById('micBtn')?.addEventListener('click', requestMic);
+      document.getElementById('reportBtn')?.addEventListener('click', reportLive);
+      document.getElementById('rechargeNavBtn')?.addEventListener('click', showRechargeModal);
+      document.getElementById('adminStreamsBtn')?.addEventListener('click', ()=> adminTab('streams'));
+      document.getElementById('adminUsersBtn')?.addEventListener('click', ()=> adminTab('users'));
+      document.getElementById('adminFinanceBtn')?.addEventListener('click', ()=> adminTab('finance'));
+      document.getElementById('adminWithdrawBtn')?.addEventListener('click', ()=> adminTab('withdraw'));
+      document.getElementById('adminRealnameBtn')?.addEventListener('click', ()=> adminTab('realname'));
+      document.getElementById('adminReplayBtn')?.addEventListener('click', ()=> adminTab('replay'));
+      document.getElementById('closeOwnLiveBtn')?.addEventListener('click', endOwnLiveStream);
+      document.getElementById('toggleMicBtn')?.addEventListener('click', toggleMic);
+      document.getElementById('toggleModeBtn')?.addEventListener('click', toggleStreamMode);
+
+      const adminDiv = document.querySelector('#page-admin .header + div');
+      if (adminDiv && !document.getElementById('adminAnchorWithdrawBtn')) {
+        const btn = document.createElement('button');
+        btn.id = 'adminAnchorWithdrawBtn';
+        btn.className = 'btn-small btn-accent';
+        btn.textContent = '🎤 主播提现审核';
+        btn.style.marginLeft = '6px';
+        btn.addEventListener('click', () => adminTab('anchor_withdraw'));
+        adminDiv.appendChild(btn);
+      }
+      if (adminDiv && !document.getElementById('adminCommentsBtn')) {
+        const commentsBtn = document.createElement('button');
+        commentsBtn.id = 'adminCommentsBtn';
+        commentsBtn.className = 'btn-small btn-accent';
+        commentsBtn.textContent = '💬 评论管理';
+        commentsBtn.style.marginLeft = '6px';
+        commentsBtn.addEventListener('click', () => adminTab('comments'));
+        adminDiv.appendChild(commentsBtn);
+
+        const adminWithdrawalsBtn = document.createElement('button');
+        adminWithdrawalsBtn.id = 'adminWithdrawalsBtn';
+        adminWithdrawalsBtn.className = 'btn-small btn-outline';
+        adminWithdrawalsBtn.textContent = '📋 管理员提现记录';
+        adminWithdrawalsBtn.style.marginLeft = '6px';
+        adminWithdrawalsBtn.addEventListener('click', () => adminTab('admin_withdrawals'));
+        adminDiv.appendChild(adminWithdrawalsBtn);
+      }
+      document.querySelectorAll('#bottom-nav .nav-item[data-page]').forEach(item => {
+        item.addEventListener('click', () => navigateTo(item.dataset.page));
+      });
+    }
+
+    function showStartLiveModal() {
+      if (!currentUser || currentUser.isAdmin) { showToast('仅用户可开播'); return; }
+      showModal(`
+        <span class="close-btn" style="float:right;cursor:pointer;">✕</span>
+        <h3>📡 开始直播</h3>
+        <div class="input-group"><label>直播标题</label><input type="text" id="new-stream-title" placeholder="输入标题" maxlength="50"></div>
+        <div class="input-group"><label>直播模式</label>
+          <select id="stream-mode-select">
+            <option value="video">📹 视频直播</option>
+            <option value="audio">🎧 语音直播</option>
+          </select>
+        </div>
+        <p style="font-size:11px;color:var(--text2);">开播即同意平台规则，禁止违规内容</p>
+        <button class="btn btn-primary" id="confirmStartLive">确认开播</button>
+        <button class="btn btn-secondary" onclick="window.closeModal()" style="margin-top:6px;">取消</button>
+      `);
+      const confirmBtn = document.getElementById('confirmStartLive');
+      if (confirmBtn) confirmBtn.addEventListener('click', () => {
+        const titleInput = document.getElementById('new-stream-title');
+        const modeSelect = document.getElementById('stream-mode-select');
+        if (!titleInput) return;
+        const title = titleInput.value.trim();
+        const mode = modeSelect ? modeSelect.value : 'video';
+        if (!title) { showToast('请输入直播标题'); return; }
+        if (detectViolation(title).violated) { showToast('标题包含违规内容'); return; }
+        db = getDB();
+        const stream = {
+          id: generateId(), hostId: currentUser.id, title, status: 'live',
+          viewers: 0, violationCount: 0, isMuted: false, mode: mode,
+          createdAt: new Date().toISOString()
+        };
+        db.streams.push(stream);
+        if (!db.likes) db.likes = {};
+        db.likes[stream.id] = [];
+        saveDB(db);
+        window.closeModal();
+        currentLiveStream = stream;
+        startLocalCamera();
+        navigateTo('live');
+        updateLiveRoomUI();
+        refreshHomePage();
+        showToast(`直播已开启 (${mode === 'video' ? '视频' : '语音'}模式)`);
+        document.getElementById('closeOwnLiveBtn').style.display = 'inline-block';
+      });
+    }
+
+    function restoreSession() {
+      const uid = sessionStorage.getItem('xq_session_user');
+      if (uid) {
+        db = getDB();
+        const user = db.users.find(u => u.id === uid);
+        if (user) {
+          currentUser = user;
+          if (user.isAdmin) {
+            if ($navAdminBtn) $navAdminBtn.style.display = 'block';
+            navigateTo('admin');
+            refreshAdminOverview();
+          } else {
+            navigateTo('home');
+            refreshHomePage();
+          }
+          if ($bottomNav) $bottomNav.style.display = 'flex';
+          document.getElementById('page-auth').classList.remove('active');
+          updateUserUI();
+        }
+      }
+    }
+
+    function hideSplash() {
+      if ($splash) {
+        $splash.style.transition = 'opacity 0.5s';
+        $splash.style.opacity = '0';
+        setTimeout(() => { if($splash && $splash.remove) $splash.remove(); }, 500);
+      }
+    }
+
+    function init() {
+      try {
+        db = getDB();
+        bindEvents();
+        restoreSession();
+        autoMonitor();
+        pollMicApproval();
+        setTimeout(hideSplash, 800); // 确保闪屏消失
+      } catch(e) { console.error(e); showToast('页面加载出错，请刷新重试'); hideSplash(); }
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>
